@@ -15,7 +15,7 @@ public class Person {
         this.currentWeight = weight;
         this.targetWeight = targetWeight;
         this.startedWeight=weight;
-        listOfMeals=new ArrayList<>();
+        listOfMeals=Meal.getArchiveMeals();
     }
 
     public String getName() {

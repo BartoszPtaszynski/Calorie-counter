@@ -1,11 +1,39 @@
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 public class ApplicationRun {
     private Person person;
 
+    public ApplicationRun() {
+        try{
+            File personFile=new File("src/personData");
+            Scanner fileReader=new Scanner(personFile);
+            if(fileReader.hasNextLine())
+            {
+                person=new Person(fileReader.nextLine(),Double.parseDouble(fileReader.nextLine())
+                        ,Double.parseDouble(fileReader.nextLine()));
+                //name: XXX
+                //currentWeight: XXX
+                //targetWeight: XXX
+                //startedWeight: XXX
+            }
+            else
+            {
+                person=null;
+            }
+            fileReader.close();
+        }catch (FileNotFoundException e)
+        {
+            System.out.println("FILE ERROR");
+        }
+
+
+    }
 
     public void start()
     {
+
         Scanner scanner=new Scanner(System.in);
         int decision=0;
         loop:
