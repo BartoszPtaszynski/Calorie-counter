@@ -37,12 +37,10 @@ public class Meal {
 
             }
         } while (!isOk);
-        String line="NAME:"+meal.name+"CALORIES:"+meal.numberOfCalories+"DATE:"+meal.date;
+        String line="NAME:"+meal.name+"CALORIES:"+meal.numberOfCalories+"DATE:"+meal.date+"\n";
 
         try{
             BufferedWriter  fileWriter=new BufferedWriter (new FileWriter("src/listOfMeals",true));
-
-            fileWriter.newLine();
             fileWriter.write(line);
             fileWriter.close();
         }
@@ -89,9 +87,7 @@ public class Meal {
                 month=Integer.parseInt(data.substring(data.indexOf("DATE:")+10,data.indexOf("DATE:")+12));
                 day=Integer.parseInt(data.substring(data.indexOf("DATE:")+13,data.indexOf("DATE:")+15));
                 date=LocalDate.of(year,month,day);
-                //date=LocalDate.of(1971,22,24)
                 meals.add(new Meal(name,calories,date));
-                //name: XXX XX XXX calories:9754date:19712204
 
             }
 

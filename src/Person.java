@@ -1,21 +1,26 @@
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Scanner;
 
 public class Person {
     private  String name;
-    private  double currentWeight;
     private double targetWeight;
-    private double startedWeight;
+    private ArrayList<Weight> weights;
+
 
     private ArrayList<Meal> listOfMeals;
 
-    public Person(String name, double weight, double targetWeight) {
+    public Person(String name, ArrayList<Weight> weights, double targetWeight) {
         this.name = name;
-        this.currentWeight = weight;
+
         this.targetWeight = targetWeight;
-        this.startedWeight=weight;
+        this.weights=weights;
         listOfMeals=Meal.getArchiveMeals();
+
     }
 
     public String getName() {
@@ -23,7 +28,7 @@ public class Person {
     }
 
     public double getWeight() {
-        return currentWeight;
+        return weights.get(weights.size()-1).getWeight();
     }
 
     public double getTargetWeight() {
@@ -31,19 +36,61 @@ public class Person {
     }
 
     public void setWeight(double weight) {
-        this.currentWeight = weight;
+        this.weights.add(new Weight(weight,LocalDate.now()));
+        refreshPersonFile();
     }
 
     public void setTargetWeight(double targetWeight) {
         this.targetWeight = targetWeight;
+
     }
 
-    public static   Person addPerson()
+    public static Person getArchivePerson()
     {
-        Person person=new Person("",0,0);
+        try{
+            File personFile=new File("src/personData");
+            Scanner fileReader=new Scanner(personFile);
+            String name;
+            double targetWeight;
+            ArrayList<Weight> weights=new ArrayList<>();
+            if(fileReader.hasNextLine())
+            {
+                name=fileReader.nextLine().substring(5);
+                targetWeight=Double.parseDouble(fileReader.nextLine().substring(13));
+                String data;
+                double weight;
+                int year,month,day;
+                while (fileReader.hasNextLine())
+                {
+                    data=fileReader.nextLine();
+                    weight=Double.parseDouble(data.substring(0,data.indexOf(" ")));
+                    year=Integer.parseInt(data.substring(data.indexOf(" ")+1,data.indexOf(" ")+5));
+                    month=Integer.parseInt(data.substring(data.indexOf(" ")+6,data.indexOf(" ")+8));
+                    day=Integer.parseInt(data.substring(data.indexOf(" ")+9,data.indexOf(" ")+11));
+                    weights.add(new Weight(weight,LocalDate.of(year,month,day)));
+                }
+
+                //name: XXX
+                //currentWeight: XXX
+                //targetWeight: XXX
+                //startedWeight: XXX
+                return new Person(name,weights,targetWeight);
+            }
+
+            fileReader.close();
+        }catch (FileNotFoundException e)
+        {
+            System.out.println("FILE ERROR");
+        }
+        return null;
+    }
+    public   Person ()
+    {
+
+        weights=new ArrayList<>();
         Scanner scanner=new Scanner(System.in);
 
-        System.out.print("Provide your name: "); person.name=scanner.nextLine();
+        System.out.print("Provide your name: "); this.name=scanner.nextLine();
 
         System.out.print("Provide your current weight: ");
 
@@ -51,8 +98,7 @@ public class Person {
         do {
             try {
                 double x=Double.parseDouble(scanner.nextLine());
-                person.currentWeight = x;
-                person.startedWeight=x;
+                weights.add(new Weight(x,LocalDate.now()));
 
                 isOk = true;
             } catch (NumberFormatException e) {
@@ -66,14 +112,25 @@ public class Person {
         isOk = false;
         do {
             try {
-                person.targetWeight = Double.parseDouble(scanner.nextLine());
+                this.targetWeight = Double.parseDouble(scanner.nextLine());
                 isOk = true;
             } catch (NumberFormatException e) {
                 System.err.print("Incorrect value, provide once again: ");
                 // Odrzucenie nieprawidłowej wartości
             }
         } while (!isOk);
-        return person;
+        String data="NAME:"+this.name+"\nTARGETWEIGHT:"+this.targetWeight+"\n"+this.weights.get(0);
+        try{
+            FileWriter fileWriter=new FileWriter("src/personData");
+            fileWriter.write(data);
+            fileWriter.close();
+        }
+        catch (IOException e)
+        {
+            System.out.println("ERROR WITH FIND FILE");
+        }
+        listOfMeals=new ArrayList<>();
+
     }
 
     public void getInfo() {
@@ -83,14 +140,16 @@ public class Person {
                  TARGET WEIGHT: %.2f kg 
                 YOUR WEIGHT HAS BEEN CHANGED SINCE BEGINING ABOUT: %.2f
                 TODAY CALORIES: %d
-                %n""", name,currentWeight,targetWeight,currentWeight-startedWeight,getTodayCalories());
+                %n""", name,weights.get(weights.size()-1).getWeight(),
+                targetWeight,weights.get(weights.size()-1).getWeight()-weights.get(0).getWeight(),
+                getEatenCalories(LocalDate.now()));
     }
-    public int getTodayCalories()
+    public int getEatenCalories(LocalDate date)
     {
         int calories=0;
         for(Meal meal: listOfMeals)
         {
-            if(meal.getDate().equals( LocalDate.now()))
+            if(meal.getDate().equals( date))
             {
                 calories+=meal.getNumberOfCalories();
             }
@@ -110,5 +169,48 @@ public class Person {
         {
             System.out.println(meal);
         }
+    }
+    private void refreshPersonFile()
+    {
+        String data="NAME:"+name+"\nTARGETWEIGHT:"+targetWeight;
+        for(Weight w:weights)
+        {
+            data=data+"\n"+w;
+        }
+        try{
+            FileWriter fileWriter=new FileWriter("src/personData");
+            fileWriter.write(data);
+            fileWriter.close();
+
+        }
+        catch (IOException e)
+        {
+            System.out.println("ERROR WITH FIND FILE");
+        }
+
+    }
+
+    public void printHistoryOfWeight() {
+        System.out.println("YOUR CHANGE OF THE WEIGHT:");
+        System.out.println("WEIGHT:\tDATE:");
+        for(Weight w:weights)
+        {
+            System.out.println(w.getWeight()+"\t"+w.getDate());
+        }
+
+    }
+
+    public void printHistoryOfCalories() {
+        if(listOfMeals.size()==0){ System.out.println("NO ADDED MEALS YET"); return;}
+        System.out.println("YOUR DAILY CALORIES:");
+        LocalDate date=listOfMeals.get(0).getDate();
+        for(Meal m:listOfMeals) {
+            if (!m.getDate().equals(date)||m==listOfMeals.get(listOfMeals.size()-1))
+            {
+                System.out.println("KCAL: "+getEatenCalories(date)+"\tDATE:"+date);
+                date=m.getDate();
+            }
+        }
+
     }
 }

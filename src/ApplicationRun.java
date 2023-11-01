@@ -1,34 +1,10 @@
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 public class ApplicationRun {
     private Person person;
 
     public ApplicationRun() {
-        try{
-            File personFile=new File("src/personData");
-            Scanner fileReader=new Scanner(personFile);
-            if(fileReader.hasNextLine())
-            {
-                person=new Person(fileReader.nextLine(),Double.parseDouble(fileReader.nextLine())
-                        ,Double.parseDouble(fileReader.nextLine()));
-                //name: XXX
-                //currentWeight: XXX
-                //targetWeight: XXX
-                //startedWeight: XXX
-            }
-            else
-            {
-                person=null;
-            }
-            fileReader.close();
-        }catch (FileNotFoundException e)
-        {
-            System.out.println("FILE ERROR");
-        }
-
-
+        person= Person.getArchivePerson();
     }
 
     public void start()
@@ -55,7 +31,7 @@ public class ApplicationRun {
                 {
                     case 1-> {
                         cleanConsole();
-                        person = Person.addPerson();
+                        person=new Person();
                     }
                     case 0->{ break loop;}
                     default -> {
@@ -72,7 +48,9 @@ public class ApplicationRun {
                 System.out.println("""
                         1. provide today's weight.
                         2. add meal.
-                        3. print history of eaten calories and weight.
+                        3. print history of your weight.
+                        4. print history of your calories eaten.
+                        
                         """);
                 try{
                     decision=scanner.nextInt();
@@ -99,8 +77,8 @@ public class ApplicationRun {
                         }
                     }
                     case 2->person.addMeal();
-                    case 3->person.printListOfMeal();
-
+                    case 3->person.printHistoryOfWeight();
+                    case 4->person.printHistoryOfCalories();
                 }
             }
         }
