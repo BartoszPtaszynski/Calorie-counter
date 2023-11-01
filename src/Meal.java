@@ -40,4 +40,12 @@ public class Meal {
                number of calories: "%d"
                date: """.formatted(name,numberOfCalories)+date;
     }
+
+    public int getNumberOfCalories() {
+        return numberOfCalories;
+    }
+
+    public LocalDate getDate() {
+        return date;
+    }
 }

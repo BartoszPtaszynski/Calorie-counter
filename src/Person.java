@@ -1,16 +1,20 @@
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Scanner;
 
 public class Person {
     private  String name;
-    private  double weight;
+    private  double currentWeight;
     private double targetWeight;
+    private double startedWeight;
+
     private ArrayList<Meal> listOfMeals;
 
     public Person(String name, double weight, double targetWeight) {
         this.name = name;
-        this.weight = weight;
+        this.currentWeight = weight;
         this.targetWeight = targetWeight;
+        this.startedWeight=weight;
         listOfMeals=new ArrayList<>();
     }
 
@@ -19,7 +23,7 @@ public class Person {
     }
 
     public double getWeight() {
-        return weight;
+        return currentWeight;
     }
 
     public double getTargetWeight() {
@@ -27,7 +31,7 @@ public class Person {
     }
 
     public void setWeight(double weight) {
-        this.weight = weight;
+        this.currentWeight = weight;
     }
 
     public void setTargetWeight(double targetWeight) {
@@ -46,7 +50,10 @@ public class Person {
         boolean isOk=false;
         do {
             try {
-                person.weight = Double.parseDouble(scanner.nextLine());
+                double x=Double.parseDouble(scanner.nextLine());
+                person.currentWeight = x;
+                person.startedWeight=x;
+
                 isOk = true;
             } catch (NumberFormatException e) {
 
@@ -73,14 +80,24 @@ public class Person {
         System.out.printf("""
                           NAME: %s
                 CURRENT WEIGHT: %.2f kg
-                 TARGET WEIGHT: %.2f kg      
+                 TARGET WEIGHT: %.2f kg 
+                YOUR WEIGHT HAS BEEN CHANGED SINCE BEGINING ABOUT: %.2f
                 TODAY CALORIES: %d
-                %n""", name,weight,targetWeight,getTodayCalories());
+                %n""", name,currentWeight,targetWeight,currentWeight-startedWeight,getTodayCalories());
     }
     public int getTodayCalories()
     {
-        //toDo
-        return 0;
+        int calories=0;
+        for(Meal meal: listOfMeals)
+        {
+            if(meal.getDate().equals( LocalDate.now()))
+            {
+                calories+=meal.getNumberOfCalories();
+            }
+        }
+
+
+        return calories;
     }
     public void addMeal()
     {
