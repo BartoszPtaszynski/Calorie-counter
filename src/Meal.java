@@ -40,7 +40,7 @@ public class Meal {
         String line="NAME:"+meal.name+"CALORIES:"+meal.numberOfCalories+"DATE:"+meal.date+"\n";
 
         try{
-            BufferedWriter  fileWriter=new BufferedWriter (new FileWriter("src/listOfMeals",true));
+            BufferedWriter  fileWriter=new BufferedWriter (new FileWriter("resources/listOfMeals",true));
             fileWriter.write(line);
             fileWriter.close();
         }
@@ -56,8 +56,7 @@ public class Meal {
     public String toString() {
         return """
                name of meal: %s
-               number of calories: "%d"
-               date: """.formatted(name,numberOfCalories)+date;
+               number of calories: "%d" """.formatted(name,numberOfCalories);
     }
 
     public int getNumberOfCalories() {
@@ -71,7 +70,7 @@ public class Meal {
     {
         ArrayList<Meal> meals=new ArrayList<>();
         try{
-            File mealsFile=new File("src/listOfMeals");
+            File mealsFile=new File("resources/listOfMeals");
             Scanner fileReader=new Scanner(mealsFile);
             String name;
             LocalDate date;

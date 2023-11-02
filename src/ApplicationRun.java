@@ -30,7 +30,6 @@ public class ApplicationRun {
                 switch (decision)
                 {
                     case 1-> {
-                        cleanConsole();
                         person=new Person();
                     }
                     case 0->{ break loop;}
@@ -45,12 +44,13 @@ public class ApplicationRun {
             else
             {
                 person.getInfo();
-                System.out.println("""
+                System.out.print("""
                         1. provide today's weight.
                         2. add meal.
                         3. print history of your weight.
                         4. print history of your calories eaten.
-                        
+                        5. print your eaten Meals from the last week
+                        6. EXIT
                         """);
                 try{
                     decision=scanner.nextInt();
@@ -58,9 +58,8 @@ public class ApplicationRun {
                 catch (InputMismatchException e)
                 {
                     System.err.println("Bad value");
-                    continue loop;
+                    continue;
                 }
-                cleanConsole();
 
                 switch (decision)
                 {
@@ -73,21 +72,21 @@ public class ApplicationRun {
                         catch (NumberFormatException e)
                         {
                             System.err.println("invalid data");
-                             break ;
+
                         }
                     }
                     case 2->person.addMeal();
                     case 3->person.printHistoryOfWeight();
                     case 4->person.printHistoryOfCalories();
+                    case 5->person.printListOfMeal();
+                    case 6->System.exit(0);
                 }
             }
         }
+
     }
-    public void cleanConsole()
-    {
-        System.out.print("\033[H\033[2J");
-        System.out.flush();
-    }
+
+
 
 
 }

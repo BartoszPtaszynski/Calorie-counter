@@ -22,68 +22,6 @@ public class Person {
         listOfMeals=Meal.getArchiveMeals();
 
     }
-
-    public String getName() {
-        return name;
-    }
-
-    public double getWeight() {
-        return weights.get(weights.size()-1).getWeight();
-    }
-
-    public double getTargetWeight() {
-        return targetWeight;
-    }
-
-    public void setWeight(double weight) {
-        this.weights.add(new Weight(weight,LocalDate.now()));
-        refreshPersonFile();
-    }
-
-    public void setTargetWeight(double targetWeight) {
-        this.targetWeight = targetWeight;
-
-    }
-
-    public static Person getArchivePerson()
-    {
-        try{
-            File personFile=new File("src/personData");
-            Scanner fileReader=new Scanner(personFile);
-            String name;
-            double targetWeight;
-            ArrayList<Weight> weights=new ArrayList<>();
-            if(fileReader.hasNextLine())
-            {
-                name=fileReader.nextLine().substring(5);
-                targetWeight=Double.parseDouble(fileReader.nextLine().substring(13));
-                String data;
-                double weight;
-                int year,month,day;
-                while (fileReader.hasNextLine())
-                {
-                    data=fileReader.nextLine();
-                    weight=Double.parseDouble(data.substring(0,data.indexOf(" ")));
-                    year=Integer.parseInt(data.substring(data.indexOf(" ")+1,data.indexOf(" ")+5));
-                    month=Integer.parseInt(data.substring(data.indexOf(" ")+6,data.indexOf(" ")+8));
-                    day=Integer.parseInt(data.substring(data.indexOf(" ")+9,data.indexOf(" ")+11));
-                    weights.add(new Weight(weight,LocalDate.of(year,month,day)));
-                }
-
-                //name: XXX
-                //currentWeight: XXX
-                //targetWeight: XXX
-                //startedWeight: XXX
-                return new Person(name,weights,targetWeight);
-            }
-
-            fileReader.close();
-        }catch (FileNotFoundException e)
-        {
-            System.out.println("FILE ERROR");
-        }
-        return null;
-    }
     public   Person ()
     {
 
@@ -116,12 +54,11 @@ public class Person {
                 isOk = true;
             } catch (NumberFormatException e) {
                 System.err.print("Incorrect value, provide once again: ");
-                // Odrzucenie nieprawidłowej wartości
             }
         } while (!isOk);
         String data="NAME:"+this.name+"\nTARGETWEIGHT:"+this.targetWeight+"\n"+this.weights.get(0);
         try{
-            FileWriter fileWriter=new FileWriter("src/personData");
+            FileWriter fileWriter=new FileWriter("resources/personData");
             fileWriter.write(data);
             fileWriter.close();
         }
@@ -132,9 +69,58 @@ public class Person {
         listOfMeals=new ArrayList<>();
 
     }
+    public String getName() {
+        return name;
+    }
+
+    public void setWeight(double weight) {
+        this.weights.add(new Weight(weight,LocalDate.now()));
+        refreshPersonFile();
+    }
+
+    public void setTargetWeight(double targetWeight) {
+        this.targetWeight = targetWeight;
+
+    }
+
+    public static Person getArchivePerson()
+    {
+        try{
+            File personFile=new File("resources/personData");
+            Scanner fileReader=new Scanner(personFile);
+            String name;
+            double targetWeight;
+            ArrayList<Weight> weights=new ArrayList<>();
+            if(fileReader.hasNextLine())
+            {
+                name=fileReader.nextLine().substring(5);
+                targetWeight=Double.parseDouble(fileReader.nextLine().substring(13));
+                String data;
+                double weight;
+                int year,month,day;
+                while (fileReader.hasNextLine())
+                {
+                    data=fileReader.nextLine();
+                    weight=Double.parseDouble(data.substring(0,data.indexOf(" ")));
+                    year=Integer.parseInt(data.substring(data.indexOf(" ")+1,data.indexOf(" ")+5));
+                    month=Integer.parseInt(data.substring(data.indexOf(" ")+6,data.indexOf(" ")+8));
+                    day=Integer.parseInt(data.substring(data.indexOf(" ")+9,data.indexOf(" ")+11));
+                    weights.add(new Weight(weight,LocalDate.of(year,month,day)));
+                }
+
+                return new Person(name,weights,targetWeight);
+            }
+            fileReader.close();
+        }catch (FileNotFoundException e)
+        {
+            System.out.println("FILE ERROR");
+        }
+        return null;
+    }
 
     public void getInfo() {
         System.out.printf("""
+                          
                           NAME: %s
                 CURRENT WEIGHT: %.2f kg
                  TARGET WEIGHT: %.2f kg 
@@ -154,8 +140,6 @@ public class Person {
                 calories+=meal.getNumberOfCalories();
             }
         }
-
-
         return calories;
     }
     public void addMeal()
@@ -165,9 +149,30 @@ public class Person {
 
     public void printListOfMeal()
     {
+        LocalDate today=LocalDate.now();
+        LocalDate currentDate=today.minusDays(7);
+        LocalDate date=today.minusDays(7);
+
+        int number=0;
         for(Meal meal:listOfMeals)
         {
-            System.out.println(meal);
+           if(meal.getDate().isAfter(date))
+           {
+               if(!currentDate.equals(meal.getDate())||currentDate.equals(listOfMeals.get(listOfMeals.size()-1)))
+               {
+                   System.out.println("-".repeat(40));
+                   System.out.println("EATEN CALORIES "+meal.getDate()+": "+getEatenCalories(meal.getDate()));
+               }
+               System.out.println(meal+"\n");
+               number++;
+
+
+               currentDate=meal.getDate();
+           }
+        }
+        if(number==0)
+        {
+            System.out.println("NO MEALS IN THE HISTORY!");
         }
     }
     private void refreshPersonFile()
@@ -178,7 +183,7 @@ public class Person {
             data=data+"\n"+w;
         }
         try{
-            FileWriter fileWriter=new FileWriter("src/personData");
+            FileWriter fileWriter=new FileWriter("resources/personData");
             fileWriter.write(data);
             fileWriter.close();
 
@@ -195,7 +200,7 @@ public class Person {
         System.out.println("WEIGHT:\tDATE:");
         for(Weight w:weights)
         {
-            System.out.println(w.getWeight()+"\t"+w.getDate());
+            System.out.println(w.getWeight()+"KG\t"+w.getDate());
         }
 
     }
